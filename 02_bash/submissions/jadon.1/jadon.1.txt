@@ -1,0 +1,10 @@
+This is my submission
+total 8
+drwxr-xr-x  4 utkarsh  staff  128 Jan 30 18:09 folder_1
+-rw-r--r--@ 1 utkarsh  staff   14 Jan 30 18:03 jadon.1
+-rw-r--r--  1 utkarsh  staff    0 Jan 30 18:16 jadon.1.txt
+total 16
+drwxr-xr-x  4 utkarsh  staff  128 Jan 30 18:09 folder_1
+-rw-r--r--@ 1 utkarsh  staff   14 Jan 30 18:03 jadon.1
+-rw-r--r--@ 1 utkarsh  staff  178 Jan 30 18:16 jadon.1.txt
+/Users/utkarsh/Documents/GitHub/AutoDrive/PerceptionTutorials/02_bash/submissions/jadon.1
