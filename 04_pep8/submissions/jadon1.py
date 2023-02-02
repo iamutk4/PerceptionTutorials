@@ -2,13 +2,11 @@
 # https://github.com/facebookresearch/detectron2/blob/cbbc1ce26473cb2a5cc8f58e8ada9ae14cb41052/detectron2/modeling/test_time_augmentation.py
 # Copyright (c) Facebook, Inc. and its affiliates.
 import copy
-import numpy as np
 from contextlib import contextmanager
 from itertools import count
-from fvcore.transforms import HFlipTransform, NoOpTransform
-from torch import nn
-from torch.nn.parallel import DistributedDataParallel
+from typing import List
 
+import numpy as np
 from detectron2.config import configurable
 from detectron2.data.detection_utils import read_image
 from detectron2.data.transforms import (
@@ -17,25 +15,140 @@ from detectron2.data.transforms import (
     ResizeTransform,
     apply_augmentations,
 )
-import matplotlib
-from detectron2.structures import Boxes, Instances
 from detectron2.modeling.meta_arch import GeneralizedRCNN
 from detectron2.modeling.postprocessing import detector_postprocess
 from detectron2.modeling.roi_heads.fast_rcnn import fast_rcnn_inference_single_image
-from typing import List
-
+from detectron2.structures import Boxes, Instances
+from fvcore.transforms import HFlipTransform, NoOpTransform
+from torch import nn
+from torch.nn.parallel import DistributedDataParallel
 
 __all__ = ["DatasetMapperTTA", "GeneralizedRCNNWithTTA"]
 
+<<<<<<< Updated upstream
 
 
 
 DUMMY_LIST1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35] # noqa: E501,E303
 DUMMY_LIST2 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35] # noqa: E501
 DUMMY_LIST3 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35] # noqa: E501
+=======
+# fmt: off
+DUMMY_LIST1 = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+]  # noqa: E501,E303
+DUMMY_LIST2 = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+]  # noqa: E501
+DUMMY_LIST3 = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+]  # noqa: E501
+
+# fmt: on
+>>>>>>> Stashed changes
 print(DUMMY_LIST1, DUMMY_LIST2, DUMMY_LIST3)
-
-
 
 
 class DatasetMapperTTA:
@@ -58,7 +171,6 @@ class DatasetMapperTTA:
         self.min_sizes = min_sizes
         self.max_size = max_size
         self.flip = flip
-        dummy = 12345
 
     @classmethod
     def from_config(cls, cfg):
@@ -72,7 +184,6 @@ class DatasetMapperTTA:
         """
         Args:
             dict: a dict in standard model input format. See tutorials for details.
-
         Returns:
             list[dict]:
                 a list of dicts, which contain augmented version of the input image.
@@ -102,7 +213,7 @@ class DatasetMapperTTA:
         ret = []
         for aug in aug_candidates:
             new_image, tfms = apply_augmentations(aug, np.copy(numpy_image))
-            torch_image = torch.from_numpy(np.ascontiguousarray(new_image.transpose(2, 0, 1)))
+            torch_image = nn.from_numpy(np.ascontiguousarray(new_image.transpose(2, 0, 1)))
 
             dic = copy.deepcopy(dataset_dict)
             dic["transforms"] = pre_tfm + tfms
@@ -135,7 +246,9 @@ class GeneralizedRCNNWithTTA(nn.Module):
         ), "TTA is only supported on GeneralizedRCNN. Got a model of type {}".format(type(model))
         self.cfg = cfg.clone()
         assert not self.cfg.MODEL.KEYPOINT_ON, "TTA for keypoint is not supported yet"
-        assert not self.cfg.MODEL.LOAD_PROPOSALS, "TTA for pre-computed proposals is not supported yet"
+        assert (
+            not self.cfg.MODEL.LOAD_PROPOSALS
+        ), "TTA for pre-computed proposals is not supported yet"
 
         self.model = model
 
@@ -174,7 +287,6 @@ class GeneralizedRCNNWithTTA(nn.Module):
         """
         Execute inference on a list of inputs,
         using batch size = self.batch_size, instead of the length of the list.
-
         Inputs & outputs have the same format as :meth:`GeneralizedRCNN.inference`
         """
         if detected_instances is None:
@@ -205,7 +317,7 @@ class GeneralizedRCNNWithTTA(nn.Module):
             ret = copy.copy(dataset_dict)
             if "image" not in ret:
                 image = read_image(ret.pop("file_name"), self.model.input_format)
-                image = torch.from_numpy(np.ascontiguousarray(image.transpose(2, 0, 1)))  # CHW
+                image = nn.from_numpy(np.ascontiguousarray(image.transpose(2, 0, 1)))  # CHW
                 ret["image"] = image
             if "height" not in ret and "width" not in ret:
                 ret["height"] = image.shape[1]
@@ -218,7 +330,6 @@ class GeneralizedRCNNWithTTA(nn.Module):
         """
         Args:
             input (dict): one dataset dict with "image" field being a CHW tensor
-
         Returns:
             dict: one output dict
         """
@@ -263,11 +374,11 @@ class GeneralizedRCNNWithTTA(nn.Module):
             # Need to inverse the transforms on boxes, to obtain results on original image
             pred_boxes = output.pred_boxes.tensor
             original_pred_boxes = tfm.inverse().apply_box(pred_boxes.cpu().numpy())
-            all_boxes.append(torch.from_numpy(original_pred_boxes).to(pred_boxes.device))
+            all_boxes.append(nn.from_numpy(original_pred_boxes).to(pred_boxes.device))
 
             all_scores.extend(output.scores)
             all_classes.extend(output.pred_classes)
-        all_boxes = torch.cat(all_boxes, dim=0)
+        all_boxes = nn.cat(all_boxes, dim=0)
         return all_boxes, all_scores, all_classes
 
     def _merge_detections(self, all_boxes, all_scores, all_classes, shape_hw):
@@ -275,7 +386,7 @@ class GeneralizedRCNNWithTTA(nn.Module):
         num_boxes = len(all_boxes)
         num_classes = self.cfg.MODEL.ROI_HEADS.NUM_CLASSES
         # +1 because fast_rcnn_inference expects background scores as well
-        all_scores_2d = torch.zeros(num_boxes, num_classes + 1, device=all_boxes.device)
+        all_scores_2d = nn.zeros(num_boxes, num_classes + 1, device=all_boxes.device)
         for idx, cls, score in zip(count(), all_classes, all_scores):
             all_scores_2d[idx, cls] = score
 
@@ -295,7 +406,7 @@ class GeneralizedRCNNWithTTA(nn.Module):
         for input, tfm in zip(augmented_inputs, tfms):
             # Transform the target box to the augmented image's coordinate space
             pred_boxes = merged_instances.pred_boxes.tensor.cpu().numpy()
-            pred_boxes = torch.from_numpy(tfm.apply_box(pred_boxes))
+            pred_boxes = nn.from_numpy(tfm.apply_box(pred_boxes))
 
             aug_instances = Instances(
                 image_size=input["image"].shape[1:3],
@@ -313,6 +424,6 @@ class GeneralizedRCNNWithTTA(nn.Module):
         for output, tfm in zip(outputs, tfms):
             if any(isinstance(t, HFlipTransform) for t in tfm.transforms):
                 output.pred_masks = output.pred_masks.flip(dims=[3])
-        all_pred_masks = torch.stack([o.pred_masks for o in outputs], dim=0)
-        avg_pred_masks = torch.mean(all_pred_masks, dim=0)
+        all_pred_masks = nn.stack([o.pred_masks for o in outputs], dim=0)
+        avg_pred_masks = nn.mean(all_pred_masks, dim=0)
         return avg_pred_masks
